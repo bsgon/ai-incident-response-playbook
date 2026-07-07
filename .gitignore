@@ -1,0 +1,11 @@
+# Office lock files
+~$*
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Local tooling
+node_modules/
+.claude/
