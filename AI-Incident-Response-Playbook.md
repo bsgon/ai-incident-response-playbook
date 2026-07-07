@@ -2,7 +2,7 @@
 
 **Meridian Digital Assets** — Trust & Safety / AI Governance
 
-> *Portfolio note: Meridian Digital Assets is a fictional digital-asset trading and custody platform used to ground this playbook in a realistic operating context. The process, taxonomy, and templates are designed to be adaptable to any organization deploying AI systems.*
+> *Portfolio note: Meridian Digital Assets is a fictional digital-asset trading and custody platform used to ground this playbook in a realistic operating context. All document-control metadata — owner, approver, status, version history — is part of that fictional scenario, illustrating how the playbook would live inside a real governance structure. The process, taxonomy, and templates are designed to be adopted by any organization deploying AI systems: replace the illustrative systems (§1.2) and role holders with your own.*
 
 ---
 
