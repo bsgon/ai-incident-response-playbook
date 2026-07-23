@@ -14,7 +14,7 @@ The playbook is written for a fictional crypto/fintech AI deployer (**Meridian D
 
 ## Why I built it
 
-I spent 6+ years running Trust & Safety incident operations in crypto/fintech — account security, transaction monitoring, incident triage, escalation, RCA, and SOP design. As I move into AI governance, this playbook is my working answer to a question I kept asking: **how much of hard-won T&S operational discipline translates directly to AI incidents?** (Answer: most of it — but the AI-specific adaptations are where it gets interesting.)
+I've spent six years in customer and operations support — four of them in crypto — and since late 2024 I've been running Trust & Safety operations: account security, escalations, incident triage, RCA, and SOP design. As I move into AI governance, this playbook is my working answer to a question I kept asking: **how much of hard-won T&S operational discipline translates directly to AI incidents?** (Answer: most of it — but the AI-specific adaptations are where it gets interesting.)
 
 ## Design decisions worth arguing about
 
@@ -72,7 +72,7 @@ flowchart TD
 
 ## Companion project: Sentinel
 
-The playbook's detection & triage layer (§6.1, Appendix E) is implemented by **Sentinel**, an automated AI-incident triage tool built as a separate project. The playbook defines the process; Sentinel implements the front end of it. The two are deliberately decoupled — the playbook is adoptable with any tooling that preserves the described capabilities.
+The playbook's detection & triage layer (§6.1, Appendix E) doubles as the specification for **Sentinel**, an automated AI-incident triage tool I'm currently building as a separate project. The playbook defines the process; Sentinel is being built to implement the front end of it. The two are deliberately decoupled — the playbook is adoptable with any tooling that preserves the described capabilities.
 
 ## License
 
