@@ -100,12 +100,12 @@ This playbook is organized by incident lifecycle, because that is how responders
 |---|---|---|
 | Governance, roles & RACI (§3) | GOVERN 2 (roles, responsibilities, accountability); GOVERN 4.3 (incident identification and information-sharing practices) | A.3.2 AI roles and responsibilities; Clause 5.3 organizational roles |
 | Taxonomy & severity (§4–5) | MAP 5.1 (likelihood and magnitude of impacts); MEASURE 3.1 (tracking identified risks) | A.5 AI system impact assessment (severity dimensions derive from impact assessments) |
-| Detection & intake (§6.1) | MEASURE (ongoing monitoring); MEASURE 3.3 (end-user feedback and reporting channels); MANAGE 4.1 (post-deployment monitoring) | A.6.2.6 AI system operation and monitoring |
+| Detection & intake (§6.1) | MEASURE (ongoing monitoring); MEASURE 3.3 (end-user feedback and reporting channels); MANAGE 4.1 (post-deployment monitoring) | A.6.2.6 AI system operation and monitoring; A.6.2.8 AI system event logs |
 | Triage & escalation (§6.2–6.3) | MANAGE 2.3 (respond to previously unknown risks); MANAGE 4.3 (incident communication to relevant actors) | A.8.4 communication of incidents; Clause 7.4 communication |
 | Containment & response (§6.4) | MANAGE 2.4 (mechanisms to supersede, disengage, or deactivate AI systems) | A.6.2.6; A.10.3 supplier arrangements (vendor-model containment) |
-| RCA & remediation (§6.5–6.6) | MEASURE 2 (evaluation of trustworthy characteristics); MANAGE 1 (risk treatment) | Clause 10.2 nonconformity and corrective action |
+| RCA & remediation (§6.5–6.6) | MEASURE 2 (evaluation of trustworthy characteristics); MANAGE 1 (risk treatment) | Clause 10.2 nonconformity and corrective action; A.6.2.4 AI system verification and validation (redeployment gate) |
 | Post-incident review & feedback loops (§6.7, §7) | MANAGE 4.2 (continual improvement); GOVERN 1 (policies updated from experience); MAP (context re-assessment) | Clause 9 performance evaluation; Clause 10 continual improvement |
-| Regulatory notification (§6.3) | GOVERN 1.1 (legal and regulatory requirements) | A.8.4; Clause 4.2 interested parties |
+| Regulatory notification (§6.3) | GOVERN 1.1 (legal and regulatory requirements) | A.8.3 external reporting; A.8.4 communication of incidents; Clause 4.2 interested parties |
 
 *Control references reflect NIST AI RMF 1.0 and ISO/IEC 42001:2023; organizations adopting this playbook should validate mappings against their certification scope.*
 
@@ -330,7 +330,7 @@ Escalation is **severity-driven and automatic** — the matrix removes the judgm
 | Trigger | Obligation (illustrative) | Clock |
 |---|---|---|
 | Personal data breach (C3, some C4) | Data-protection regulator notification (e.g., GDPR Art. 33) | 72 h from awareness |
-| Serious AI incident under applicable AI regulation | e.g., EU AI Act Art. 73 serious-incident reporting for high-risk systems | 2–15 days depending on incident nature |
+| Serious AI incident under applicable AI regulation | e.g., EU AI Act Art. 73 serious-incident reporting for high-risk systems, to the relevant market surveillance authority | Immediately, and at the latest: **2 days** (widespread infringement or serious/irreversible disruption of critical infrastructure) · **10 days** (death) · **15 days** (other serious incidents). An initial incomplete report is permitted, completed later (Art. 73(5)) |
 | Financial-regulatory triggers | SAR filings; prudential notification for operational incidents affecting customer funds | Per jurisdiction |
 | Contractual | Notification to enterprise customers, partners; **inbound**: vendors must notify Meridian of C7-relevant events per contract | Per contract |
 | Affected users | Direct notice where legally required or where trust demands it | Comms leads, Legal approves |
@@ -364,6 +364,16 @@ Incident records, evidence, and communications drafts are classified **Confident
 5. Degrade to human-in-the-loop (model advises, human decides)
 6. **Kill switch:** disable the AI system entirely, fail over to manual process
 
+**Fail-safe modes.** A kill switch is not "the system stops" — it is "the system falls back to a pre-defined safe state." Each system's fallback is defined in the Model Inventory and exercised in the quarterly test:
+
+| System | Fail-safe mode on kill switch |
+|---|---|
+| **FALCON** | *Fail-closed* above the defined high-risk transaction threshold (holds transactions for manual review); *fail-open with rate limiting* for routine transactions, to avoid halting the platform |
+| **KYC-Vision** | *Fail-degraded*: 100% of documents route to the human onboarding review desk |
+| **ARIA** | *Fail-visible*: chat interface disabled with an explicit unavailability message and a path to human support — never a silently degraded assistant |
+
+The FALCON split is the point: an undifferentiated fail-closed would stop the business, and an undifferentiated fail-open would let fraud through. Fallback behavior is a **risk decision made in advance**, not an improvisation during an incident.
+
 Every production AI system at Meridian **must have options 4–6 tested quarterly** (this is the operational meaning of NIST AI RMF MANAGE 2.4). A kill switch that has never been pulled in an exercise is a hypothesis, not a control.
 
 **Containment SLAs and targets:**
@@ -389,6 +399,8 @@ Every production AI system at Meridian **must have options 4–6 tested quarterl
 | C7 Third-party | Pin versions; activate fallback vendor/manual path; invoke vendor incident SLA | Meridian remains accountable to its users and regulators regardless of vendor fault — never wait on a vendor to begin containment |
 
 **C7 supplement — contractual track.** Vendor incidents run on two tracks: the technical track above, and a contractual track activated by Legal with the Model Owner: (1) invoke the vendor's incident SLA and demand a vendor RCA; (2) exercise contractual audit/information rights; (3) verify the vendor met its own notification obligation — a missed notification is itself a PIR finding and contract-renewal input; (4) for recurring incidents, trigger the documented exit plan (ISO/IEC 42001 A.10.3). C7 incidents are **sub-tagged by origin** — *foundation model · infrastructure · model component (embeddings, vector DB, safety classifiers, OCR) · integrated tool* — so vendor-concentration risk becomes visible in §7 reporting.
+
+**Third-party telemetry preservation.** For incidents originating in a vendor API (e.g., ARIA's foundation-model provider, KYC-Vision), the Model Owner issues a **formal preservation request** to the provider covering the incident window: server-side inference logs, the exact model checkpoint/version served, and system telemetry. Meridian's own snapshot captures only its side of the boundary — the vendor holds the rest, and vendors rotate logs on their own schedule. No substantive response within **24 hours** escalates to contractual audit rights and a concentration-risk review by the AI Incident Review Board.
 
 **Evidence preservation (mandatory before any fix ships):** the behavioral snapshot — model and version IDs, system prompts and configuration, guardrail settings, the triggering inputs/outputs, retrieval context, relevant logs, and (for C4/C3) forensic copies per Enterprise IR evidence standards. Non-determinism means *the incident state may be unreproducible after any change*. Snapshot first, fix second.
 
@@ -439,11 +451,20 @@ Remediation addresses three levels, and the RCA must propose actions at each:
 
 "Fix shipped" is not "incident resolved." The incident closes only when post-remediation monitoring confirms the failure class is absent over an agreed observation window (default: 14 days for SEV-1/2).
 
+**Two milestones govern the post-containment clocks**, so that investigation and learning are not blocked by the observation window:
+
+| Milestone | Definition | What it starts |
+|---|---|---|
+| **T0 — containment verified** | Harm verifiably stopped (§6.4 exit criterion) | RCA deadline (§6.5) **and** the PIR deadline (§6.7) both run from here |
+| **T+14 — formal closure** | Observation window ends with the failure class absent | Incident closed and signed off; PIR actions transfer to Review Board tracking |
+
+Anchoring the PIR at T0 rather than at closure is deliberate: a review held five weeks after the event is a review of people's memories, not of the event.
+
 **Closure and reopening.** The IC closes the incident with the Model Owner's confirmation that remediation held through the observation window; SEV-1/2 closures additionally require AI Governance Lead co-sign (authority table, §3.4). If the failure class recurs **within** the observation window, the incident **reopens** — same ID, timeline continues. Recurrence **after** closure is a **new incident linked to the original**: the link feeds the recurrence metric (§7), and the new incident's severity floor is one level above its nominal score — a failure class that survived remediation is, by definition, worse than first believed.
 
 ### 6.7 Post-Incident Review & Lessons Learned
 
-**Blameless, mandatory, time-boxed:** SEV-1/2 within 10 business days of resolution (60–90 min, cross-functional, IC facilitates, AI Governance Lead accountable for output); SEV-3 and near-misses get a lightweight async review (30 min or written).
+**Blameless, mandatory, time-boxed:** SEV-1/2 within 10 business days of **T0 (containment verified, §6.6)** — not of closure (60–90 min, cross-functional, IC facilitates, AI Governance Lead accountable for output); SEV-3 and near-misses get a lightweight async review (30 min or written). If the observation window is still open at PIR time, remediation-effectiveness findings are recorded as provisional and confirmed at closure.
 
 The PIR answers (template: Appendix C):
 

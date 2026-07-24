@@ -1,0 +1,18 @@
+{
+  "name": "ai-incident-response-playbook",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Build tooling for the AI Incident Response Playbook",
+  "type": "module",
+  "license": "CC-BY-4.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bsgon/ai-incident-response-playbook.git"
+  },
+  "scripts": {
+    "build:docx": "node tools/md-to-docx.mjs"
+  },
+  "dependencies": {
+    "docx": "^9.7.1"
+  }
+}

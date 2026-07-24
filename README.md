@@ -74,6 +74,14 @@ flowchart TD
 
 The playbook's detection & triage layer (§6.1, Appendix E) doubles as the specification for **Sentinel**, an automated AI-incident triage tool I'm currently building as a separate project. The playbook defines the process; Sentinel is being built to implement the front end of it. The two are deliberately decoupled — the playbook is adoptable with any tooling that preserves the described capabilities.
 
+## Repository layout
+
+The Markdown file is the single source of truth. The Word document is generated from it, so the two can never drift:
+
+```bash
+npm install && npm run build:docx
+```
+
 ## License
 
 Content licensed under [CC BY 4.0](LICENSE) — adapt it to your organization, with attribution.

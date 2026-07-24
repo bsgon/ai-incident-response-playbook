@@ -8,4 +8,6 @@ desktop.ini
 
 # Local tooling
 node_modules/
+package-lock.json
+.verify/
 .claude/
